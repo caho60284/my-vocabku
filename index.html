@@ -2,267 +2,413 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>My Vocab Ultra</title>
+
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #f5f5f5;
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+body{margin:0;background:#f5f7fb}
+
+header{
+position:sticky;top:0;background:#fff;
+padding:16px;z-index:10;
+box-shadow:0 2px 6px rgba(0,0,0,.08)
 }
 
-header {
-  background: #ffffff;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+h1{margin:0 0 6px;font-size:22px}
+.count{font-size:14px;color:#666}
+
+.controls{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:10px
 }
 
-h1 {
-  margin: 0;
-  font-size: 20px;
+button{
+border:none;
+padding:10px 14px;
+border-radius:12px;
+font-size:14px;
+cursor:pointer;
+color:#fff
 }
 
-#count {
-  color: #666;
-  font-size: 12px;
+.import{background:#1e88e5}
+.export{background:#6a5acd}
+.deleteall{background:#e53935}
+.favorite{background:#f39c12}
+.pron{background:#4fc3f7}
+.refresh{background:#43a047}
+.add{background:#90a4ae}
+
+.search{
+width:100%;
+margin-top:10px;
+padding:12px;
+border-radius:12px;
+border:1px solid #ccc;
+font-size:16px;
 }
 
-.toolbar {
-  display: flex;
-  gap: 6px;
-  padding: 8px;
-  background: #fafafa;
-  border-bottom: 1px solid #ddd;
+main{padding:16px}
+
+.card{
+background:#fff;
+border-radius:14px;
+padding:14px;
+margin-bottom:12px;
+position:relative
 }
 
-button {
-  border: 1px solid #ccc;
-  background: white;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
+.word{font-weight:700;font-size:18px}
+.pronounce{color:#666;font-style:italic;margin-top:2px}
+.meaning{color:#444;margin-top:4px}
+
+.icons{
+margin-top:8px;
+display:flex;
+gap:8px;
+font-size:20px
 }
 
-button:hover {
-  background: #f0f0f0;
+.star{
+position:absolute;
+right:12px;
+top:12px;
+font-size:22px;
+cursor:pointer;
+color:#bbb
+}
+.star.active{color:#f4c542}
+
+.pencil{
+position:absolute;
+right:40px;
+top:12px;
+font-size:20px;
+cursor:pointer
 }
 
-.container {
-  padding: 10px;
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.4);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:99
 }
 
-.word {
-  background: white;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+.modal-content{
+background:#fff;
+width:92%;
+max-width:420px;
+padding:16px;
+border-radius:14px
 }
 
-.word .term {
-  font-weight: bold;
+.modal-content input,
+.modal-content textarea{
+width:100%;
+margin-bottom:8px;
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:16px;
 }
 
-.word .meaning {
-  color: #555;
-  font-size: 14px;
+.modal-actions{
+display:flex;
+gap:10px;
+margin-top:10px
 }
 
-.actions {
-  margin-top: 6px;
-  display: flex;
-  gap: 6px;
+.save{background:#1e88e5}
+.delete{background:#e53935}
+.cancel{background:#bbb}
+.audio{background:#2ecc71}
+
+.pronIPA{
+margin-top:8px;
+font-style:italic;
+color:#444
 }
 
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.3);
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  width: 300px;
-}
-
-.modal-content input {
-  width: 100%;
-  margin-bottom: 6px;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
+.pronResult{
+margin-top:8px;
+font-weight:600
 }
 </style>
 </head>
+
 <body>
 
 <header>
-  <h1>My Vocab Ultra</h1>
-  <div id="count">Total vocabulary: 0</div>
-</header>
+<h1>📘 My Vocab Ultra</h1>
+<div class="count" id="count">Total vocabulary: 0</div>
 
-<div class="toolbar">
-  <button onclick="importData()">Import</button>
-  <button onclick="exportData()">Export</button>
-  <button onclick="deleteAll()">Delete All</button>
-  <button onclick="showFavorites()">⭐ Favorites</button>
-  <button onclick="togglePronunciation()">Pronunciation</button>
-  <button onclick="openModal()">＋</button>
+<div class="controls">
+<button class="import" onclick="importCSV()">📥 Import</button>
+<button class="export" onclick="exportCSV()">📤 Export</button>
+<button class="deleteall" onclick="deleteAll()">🧨 Delete All</button>
+
+<button class="favorite" onclick="showFavorites()">⭐ Favorites</button>
+<button class="pron" onclick="openPron()">🎤 Pronunciation</button>
+<button class="refresh" onclick="refreshList()">🔄</button>
+<button class="add" onclick="openModal()">＋</button>
 </div>
 
-<div class="container" id="list"></div>
+<input class="search" id="search" placeholder="Search word or meaning..." oninput="render()">
+</header>
 
+<main id="list"></main>
+
+<!-- EDIT -->
 <div class="modal" id="modal">
-  <div class="modal-content">
-    <input id="term" placeholder="Word">
-    <input id="meaning" placeholder="Meaning">
-    <div class="modal-buttons">
-      <button onclick="saveWord()">Save</button>
-      <button onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
+<div class="modal-content">
+<input id="word" placeholder="Word">
+<input id="pronounce" placeholder="IPA">
+<input id="meaning" placeholder="Meaning">
+
+<textarea id="ex1" placeholder="Example 1"></textarea>
+<textarea id="ex2" placeholder="Example 2"></textarea>
+
+<div class="modal-actions">
+<button class="audio" onclick="speak(ex1.value)">🔊 Ex1</button>
+<button class="audio" onclick="speak(ex2.value)">🔊 Ex2</button>
+</div>
+
+<div class="modal-actions">
+<button class="save" onclick="save()">Save</button>
+<button class="delete" onclick="remove()">Delete</button>
+<button class="cancel" onclick="closeModal()">Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- PRON -->
+<div class="modal" id="pronModal">
+<div class="modal-content">
+<input id="pronWord" placeholder="Type word" oninput="lookupIPA()">
+
+<div class="pronIPA" id="pronIPA"></div>
+
+<div class="modal-actions">
+<button class="audio" onclick="hearPron()">Hear</button>
+<button class="save" onclick="testPron()">Test</button>
+<button class="cancel" onclick="closePron()">Close</button>
+</div>
+
+<div class="pronResult" id="pronResult"></div>
+</div>
 </div>
 
 <script>
-let vocab = JSON.parse(localStorage.getItem("vocab") || "[]");
-let showFav = false;
-let pronunciation = false;
+let data=JSON.parse(localStorage.getItem("vocab")||"[]");
+let editIndex=null;
+let showFav=false;
 
-function render() {
-  const list = document.getElementById("list");
-  list.innerHTML = "";
-  let filtered = showFav ? vocab.filter(v => v.fav) : vocab;
+function render(){
+const q=search.value.toLowerCase();
+const list=document.getElementById("list");
+list.innerHTML="";
 
-  filtered.forEach((v, i) => {
-    const div = document.createElement("div");
-    div.className = "word";
+let filtered=data.filter(v=>{
+if(showFav && !v.fav) return false;
+return v.word.toLowerCase().includes(q)||v.meaning.toLowerCase().includes(q);
+});
 
-    const term = document.createElement("div");
-    term.className = "term";
-    term.textContent = v.term;
+count.innerText="Total vocabulary: "+data.length;
 
-    const meaning = document.createElement("div");
-    meaning.className = "meaning";
-    meaning.textContent = v.meaning;
+filtered.forEach(v=>{
+const i=data.indexOf(v);
 
-    const actions = document.createElement("div");
-    actions.className = "actions";
+const d=document.createElement("div");
+d.className="card";
 
-    const favBtn = document.createElement("button");
-    favBtn.textContent = v.fav ? "★" : "☆";
-    favBtn.onclick = () => {
-      v.fav = !v.fav;
-      save();
-    };
+d.innerHTML=`
+<div class="word">${v.word}</div>
+<div class="pronounce">${v.pronounce||""}</div>
+<div class="meaning">${v.meaning||""}</div>
 
-    const speakBtn = document.createElement("button");
-    speakBtn.textContent = "Hear";
-    speakBtn.onclick = () => speak(v.term);
+<div class="icons">
+<span onclick="speak('${v.word}')">🔊</span>
+<span onclick="speakSlow('${v.word}')">🐢</span>
+</div>
 
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "Delete";
-    delBtn.onclick = () => {
-      vocab.splice(i, 1);
-      save();
-    };
+<div class="pencil" onclick="edit(${i})">✏️</div>
+<div class="star ${v.fav?'active':''}" onclick="toggleFav(${i})">★</div>
+`;
 
-    actions.appendChild(favBtn);
-    if (pronunciation) actions.appendChild(speakBtn);
-    actions.appendChild(delBtn);
+list.appendChild(d);
+});
 
-    div.appendChild(term);
-    div.appendChild(meaning);
-    div.appendChild(actions);
-    list.appendChild(div);
-  });
-
-  document.getElementById("count").textContent =
-    "Total vocabulary: " + vocab.length;
+localStorage.setItem("vocab",JSON.stringify(data));
 }
 
-function save() {
-  localStorage.setItem("vocab", JSON.stringify(vocab));
-  render();
+function openModal(){
+editIndex=null;
+word.value="";
+pronounce.value="";
+meaning.value="";
+ex1.value="";
+ex2.value="";
+modal.style.display="flex";
 }
 
-function openModal() {
-  document.getElementById("modal").style.display = "flex";
+function closeModal(){modal.style.display="none"}
+
+function save(){
+const v={
+word:word.value,
+pronounce:pronounce.value,
+meaning:meaning.value,
+ex1:ex1.value,
+ex2:ex2.value,
+fav:false
+};
+
+if(editIndex===null)data.push(v);
+else data[editIndex]={...data[editIndex],...v};
+
+closeModal();
+render();
 }
 
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
+function edit(i){
+editIndex=i;
+const v=data[i];
+word.value=v.word;
+pronounce.value=v.pronounce;
+meaning.value=v.meaning;
+ex1.value=v.ex1||"";
+ex2.value=v.ex2||"";
+modal.style.display="flex";
 }
 
-function saveWord() {
-  const term = document.getElementById("term").value.trim();
-  const meaning = document.getElementById("meaning").value.trim();
-  if (!term) return;
-
-  vocab.push({ term, meaning, fav: false });
-  document.getElementById("term").value = "";
-  document.getElementById("meaning").value = "";
-  closeModal();
-  save();
+function remove(){
+if(editIndex!==null){
+data.splice(editIndex,1);
+closeModal();
+render();
+}
 }
 
-function deleteAll() {
-  if (confirm("Delete all vocabulary?")) {
-    vocab = [];
-    save();
-  }
+function deleteAll(){
+if(confirm("Delete all vocab?")){
+data=[];
+render();
+}
 }
 
-function showFavorites() {
-  showFav = !showFav;
-  render();
+function toggleFav(i){
+data[i].fav=!data[i].fav;
+render();
 }
 
-function togglePronunciation() {
-  pronunciation = !pronunciation;
-  render();
+function showFavorites(){
+showFav=!showFav;
+render();
 }
 
-function speak(text) {
-  const u = new SpeechSynthesisUtterance(text);
-  speechSynthesis.speak(u);
+function refreshList(){
+search.value="";
+showFav=false;
+render();
 }
 
-function exportData() {
-  const blob = new Blob([JSON.stringify(vocab)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "vocab.json";
-  a.click();
+function speak(t){
+if(!t)return;
+speechSynthesis.speak(new SpeechSynthesisUtterance(t));
 }
 
-function importData() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json";
-  input.onchange = e => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      vocab = JSON.parse(reader.result);
-      save();
-    };
-    reader.readAsText(file);
-  };
-  input.click();
+function speakSlow(t){
+if(!t)return;
+let u=new SpeechSynthesisUtterance(t);
+u.rate=0.6;
+speechSynthesis.speak(u);
+}
+
+function exportCSV(){
+let csv="word,pronounce,meaning,ex1,ex2,fav\n";
+data.forEach(v=>{
+csv+=`"${v.word}","${v.pronounce||""}","${v.meaning||""}","${v.ex1||""}","${v.ex2||""}","${v.fav?1:0}"\n`;
+});
+const a=document.createElement("a");
+a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+a.download="vocab.csv";
+a.click();
+}
+
+function importCSV(){
+const i=document.createElement("input");
+i.type="file";
+i.accept=".csv";
+i.onchange=e=>{
+const r=new FileReader();
+r.onload=()=>{
+const lines=r.result.split(/\r?\n/).filter(l=>l.trim());
+data=[];
+lines.slice(1).forEach(line=>{
+const c=line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+if(!c)return;
+data.push({
+word:c[0].replace(/"/g,""),
+pronounce:c[1].replace(/"/g,""),
+meaning:c[2].replace(/"/g,""),
+ex1:c[3].replace(/"/g,""),
+ex2:c[4].replace(/"/g,""),
+fav:c[5]=="1"
+});
+});
+render();
+alert("Import success");
+};
+r.readAsText(e.target.files[0]);
+};
+i.click();
+}
+
+/* pronunciation */
+
+function openPron(){
+pronWord.value="";
+pronIPA.innerHTML="";
+pronResult.innerHTML="";
+pronModal.style.display="flex";
+}
+
+function closePron(){
+pronModal.style.display="none";
+}
+
+function lookupIPA(){
+const w=pronWord.value.toLowerCase().trim();
+const found=data.find(v=>v.word.toLowerCase()==w);
+pronIPA.innerHTML=found?found.pronounce:"";
+}
+
+function hearPron(){
+speak(pronWord.value);
+}
+
+function testPron(){
+let target=pronWord.value.toLowerCase().trim();
+if(!target)return;
+
+let rec=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
+rec.lang="en-US";
+rec.start();
+
+rec.onresult=e=>{
+let said=e.results[0][0].transcript.toLowerCase();
+if(said==target){
+pronResult.innerHTML="✅ Correct";
+}else{
+pronResult.innerHTML="❌ "+said;
+}
+};
 }
 
 render();

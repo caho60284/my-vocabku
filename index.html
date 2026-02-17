@@ -414,23 +414,34 @@ speak(pronWord.value);
 }
 
 function testPron(){
-let target=pronWord.value.toLowerCase().trim();
-if(!target)return;
 
-let rec=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
-rec.lang="en-US";
-rec.start();
+  if(!('webkitSpeechRecognition' in window)){
+    alert("Speech not supported");
+    return;
+  }
 
-rec.onresult=e=>{
-let said=e.results[0][0].transcript.toLowerCase();
-if(said==target){
-pronResult.innerHTML="✅ Correct";
-}else{
-pronResult.innerHTML="❌ "+said;
+  const target = pronWord.value.toLowerCase().trim();
+  if(!target) return;
+
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.start();
+
+  recognition.onresult = function(e){
+
+    const spoken = e.results[0][0].transcript.toLowerCase().trim();
+
+    const score = similarityScore(spoken, target);
+
+    if(score >= 80){
+      playCling();
+      pronResult.innerHTML = pronIPA.innerText + " ✔ Correct " + score;
+    }else{
+      playBeep();
+      pronResult.innerHTML = pronIPA.innerText + " ❌ " + score;
+    }
+  };
 }
-};
-}
-
 render();
 </script>
 

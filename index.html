@@ -47,17 +47,9 @@ display:none;align-items:center;justify-content:center;padding:14px;z-index:99}
 .modal-content{background:#fff;border-radius:16px;padding:14px;width:100%;
 max-width:420px;max-height:90vh;overflow:auto}
 
-.modal-content input{
+.modal-content input, .modal-content textarea{
 width:100%;margin-bottom:10px;padding:12px 14px;
 border-radius:10px;border:1px solid #ccc;font-size:16px
-}
-
-.modal-content textarea{
-width:100%;margin-bottom:10px;padding:12px 14px;
-border-radius:10px;border:1px solid #ccc;font-size:16px;
-resize:none;overflow:hidden;
-white-space:pre-wrap;
-word-break:break-word;
 }
 
 .ipa{font-family:Arial,Helvetica,sans-serif}
@@ -69,6 +61,8 @@ word-break:break-word;
 .delete{background:#e53935;color:#fff}
 .cancel{background:#bbb}
 .audio{background:#2ecc71;color:#fff}
+
+#pscore{font-weight:600;margin-top:6px}
 </style>
 </head>
 
@@ -85,6 +79,7 @@ word-break:break-word;
 <button class="favbtn" onclick="toggleFavView()">⭐ Favorites</button>
 <button class="refresh" onclick="resetView()">🔄</button>
 <button class="add" onclick="openModal()">＋</button>
+<button class="refresh" onclick="openPron()">🎤 Pronounce</button>
 </div>
 
 <input class="search" id="search" placeholder="Search word or meaning..." oninput="render()">
@@ -92,6 +87,7 @@ word-break:break-word;
 
 <main id="list"></main>
 
+<!-- VOCAB MODAL -->
 <div class="modal" id="modal">
 <div class="modal-content">
 
@@ -116,6 +112,27 @@ word-break:break-word;
 <button class="save" onclick="save()">Save</button>
 <button class="delete" onclick="remove()">Delete</button>
 <button class="cancel" onclick="closeModal()">Cancel</button>
+</div>
+
+</div>
+</div>
+
+<!-- PRON MODAL -->
+<div class="modal" id="pronModal">
+<div class="modal-content">
+
+<input id="pword" placeholder="Type word and press Enter">
+<div id="pipa" class="ipa"></div>
+
+<div class="modal-actions">
+<button class="audio" onclick="hearWord()">🔊 Hear</button>
+<button class="audio" onclick="startPron()">🎙 Speak</button>
+</div>
+
+<div id="pscore"></div>
+
+<div class="modal-actions">
+<button class="cancel" onclick="closePron()">Close</button>
 </div>
 
 </div>
@@ -209,10 +226,7 @@ function remove(){
 if(editIndex!==null){data.splice(editIndex,1);closeModal();render()}
 }
 
-function deleteAll(){
-if(confirm("Delete all vocabulary?")){data=[];render()}
-}
-
+function deleteAll(){if(confirm("Delete all vocabulary?")){data=[];render()}}
 function toggleFav(i){data[i].fav=!data[i].fav;render()}
 function toggleFavView(){favOnly=!favOnly;render()}
 function resetView(){favOnly=false;search.value="";render()}
@@ -266,6 +280,84 @@ i.click()
 }
 
 render()
+
+// ===== PRONOUNCE TRAINER =====
+
+function openPron(){
+pronModal.style.display="flex"
+pword.value=""
+pipa.innerText=""
+pscore.innerText=""
+}
+
+function closePron(){pronModal.style.display="none"}
+
+const ipaDict={
+ambitious:"/æmˈbɪʃəs/",
+multitask:"/ˌmʌltiˈtæsk/",
+porridge:"/ˈpɒrɪdʒ/",
+chambermaid:"/ˈtʃeɪmbərmeɪd/",
+productive:"/prəˈdʌktɪv/"
+}
+
+pword.addEventListener("keypress",e=>{
+if(e.key==="Enter"){
+const w=pword.value.toLowerCase().trim()
+pipa.innerText=ipaDict[w]||"(IPA not found)"
+}
+})
+
+function hearWord(){
+if(!pword.value)return
+speechSynthesis.speak(new SpeechSynthesisUtterance(pword.value))
+}
+
+function startPron(){
+if(!pword.value)return
+
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition
+if(!SpeechRecognition){
+alert("Speech recognition not supported")
+return
+}
+
+const rec=new SpeechRecognition()
+rec.lang="en-US"
+rec.start()
+
+rec.onresult=e=>{
+const said=e.results[0][0].transcript.toLowerCase()
+const target=pword.value.toLowerCase()
+
+if(said===target){
+playCling()
+pscore.innerText="✅ Correct"
+}else{
+playBeep()
+pscore.innerText="❌ You said: "+said
+}
+}
+}
+
+function playBeep(){
+const ctx=new AudioContext()
+const o=ctx.createOscillator()
+o.type="sine"
+o.frequency.value=200
+o.connect(ctx.destination)
+o.start()
+setTimeout(()=>o.stop(),200)
+}
+
+function playCling(){
+const ctx=new AudioContext()
+const o=ctx.createOscillator()
+o.type="triangle"
+o.frequency.value=800
+o.connect(ctx.destination)
+o.start()
+setTimeout(()=>o.stop(),200)
+}
 </script>
 </body>
 </html>

@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Vocab Ultra</title>
-
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -13,7 +12,7 @@ body {
 }
 
 header {
-  background: #fff;
+  background: #ffffff;
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
@@ -60,12 +59,11 @@ button:hover {
   border: 1px solid #ddd;
 }
 
-.term {
+.word .term {
   font-weight: bold;
-  cursor: pointer;
 }
 
-.meaning {
+.word .meaning {
   color: #555;
   font-size: 14px;
 }
@@ -108,38 +106,8 @@ button:hover {
   justify-content: flex-end;
   gap: 6px;
 }
-
-/* TEST PANEL */
-#testPanel {
-  display: none;
-  padding: 16px;
-  background: #eee;
-  border-top: 1px solid #ddd;
-}
-
-#testWord {
-  font-size: 42px;
-  font-weight: bold;
-}
-
-#testIPA {
-  font-size: 26px;
-  color: #666;
-  margin-bottom: 14px;
-}
-
-#result {
-  margin-top: 14px;
-  font-size: 28px;
-}
-
-#score {
-  font-size: 22px;
-  color: #666;
-}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -158,22 +126,6 @@ button:hover {
 
 <div class="container" id="list"></div>
 
-<!-- TEST PANEL -->
-<div id="testPanel">
-  <div style="text-align:center;">
-    <div id="testWord">able</div>
-    <div id="testIPA">/ˈeɪ.bəl/</div>
-
-    <div style="display:flex; gap:10px;">
-      <button style="flex:1;" onclick="hearWord()">Hear</button>
-      <button style="flex:1;" onclick="startTest()">Test</button>
-    </div>
-
-    <div id="result"></div>
-    <div id="score"></div>
-  </div>
-</div>
-
 <div class="modal" id="modal">
   <div class="modal-content">
     <input id="term" placeholder="Word">
@@ -190,24 +142,9 @@ let vocab = JSON.parse(localStorage.getItem("vocab") || "[]");
 let showFav = false;
 let pronunciation = false;
 
-let currentWord = "";
-let correctCount = 0;
-let totalCount = 0;
-
-/* IPA MINI DICT */
-const IPA = {
-  able:"/ˈeɪ.bəl/",
-  about:"/əˈbaʊt/",
-  above:"/əˈbʌv/",
-  accept:"/əkˈsept/",
-  achieve:"/əˈtʃiːv/",
-  across:"/əˈkrɒs/"
-};
-
 function render() {
   const list = document.getElementById("list");
   list.innerHTML = "";
-
   let filtered = showFav ? vocab.filter(v => v.fav) : vocab;
 
   filtered.forEach((v, i) => {
@@ -217,10 +154,6 @@ function render() {
     const term = document.createElement("div");
     term.className = "term";
     term.textContent = v.term;
-
-    term.onclick = () => {
-      if (pronunciation) setTestWord(v.term);
-    };
 
     const meaning = document.createElement("div");
     meaning.className = "meaning";
@@ -236,6 +169,10 @@ function render() {
       save();
     };
 
+    const speakBtn = document.createElement("button");
+    speakBtn.textContent = "Hear";
+    speakBtn.onclick = () => speak(v.term);
+
     const delBtn = document.createElement("button");
     delBtn.textContent = "Delete";
     delBtn.onclick = () => {
@@ -244,6 +181,7 @@ function render() {
     };
 
     actions.appendChild(favBtn);
+    if (pronunciation) actions.appendChild(speakBtn);
     actions.appendChild(delBtn);
 
     div.appendChild(term);
@@ -261,7 +199,6 @@ function save() {
   render();
 }
 
-/* MODAL */
 function openModal() {
   document.getElementById("modal").style.display = "flex";
 }
@@ -282,7 +219,6 @@ function saveWord() {
   save();
 }
 
-/* TOOLBAR */
 function deleteAll() {
   if (confirm("Delete all vocabulary?")) {
     vocab = [];
@@ -297,72 +233,14 @@ function showFavorites() {
 
 function togglePronunciation() {
   pronunciation = !pronunciation;
-  document.getElementById("testPanel").style.display =
-    pronunciation ? "block" : "none";
+  render();
 }
 
-/* TEST ENGINE */
-function setTestWord(word) {
-  currentWord = word;
-  document.getElementById("testWord").textContent = word;
-  document.getElementById("testIPA").textContent =
-    IPA[word.toLowerCase()] || "/";
+function speak(text) {
+  const u = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(u);
 }
 
-function hearWord() {
-  if (!currentWord) return;
-  speechSynthesis.speak(new SpeechSynthesisUtterance(currentWord));
-}
-
-function startTest() {
-  if (!currentWord) return;
-
-  if (!("webkitSpeechRecognition" in window)) {
-    alert("Speech recognition not supported");
-    return;
-  }
-
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = "en-US";
-  recognition.start();
-
-  recognition.onresult = e => {
-    const spoken = e.results[0][0].transcript.toLowerCase();
-    checkAnswer(spoken);
-  };
-}
-
-function checkAnswer(spoken) {
-  totalCount++;
-
-  if (spoken === currentWord.toLowerCase()) {
-    correctCount++;
-    playCling();
-    document.getElementById("result").innerHTML =
-      "✔ <span style='color:#4caf50'>Correct</span>";
-  } else {
-    playBeep();
-    document.getElementById("result").innerHTML =
-      "✖ <span style='color:#f44336'>Wrong</span>";
-  }
-
-  const score = Math.round((correctCount / totalCount) * 100);
-  document.getElementById("score").textContent =
-    `Score: ${score}% (${correctCount}/${totalCount})`;
-}
-
-/* SOUNDS */
-function playCling() {
-  const a = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-  a.play();
-}
-
-function playBeep() {
-  const a = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-  a.play();
-}
-
-/* IMPORT EXPORT */
 function exportData() {
   const blob = new Blob([JSON.stringify(vocab)], { type: "application/json" });
   const a = document.createElement("a");

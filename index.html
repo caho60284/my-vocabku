@@ -167,12 +167,18 @@ font-weight:600
 <!-- EDIT -->
 <div class="modal" id="modal">
 <div class="modal-content">
+
 <input id="word" placeholder="Word">
-<input id="pronounce" placeholder="IPA">
+<input id="ipa" placeholder="IPA">
 <input id="meaning" placeholder="Meaning">
 
 <textarea id="ex1" placeholder="Example 1"></textarea>
+<input id="ipa1" placeholder="IPA Example 1">
+<textarea id="tr1" placeholder="Translation 1"></textarea>
+
 <textarea id="ex2" placeholder="Example 2"></textarea>
+<input id="ipa2" placeholder="IPA Example 2">
+<textarea id="tr2" placeholder="Translation 2"></textarea>
 
 <div class="modal-actions">
 <button class="audio" onclick="speak(ex1.value)">🔊 Ex1</button>
@@ -184,6 +190,7 @@ font-weight:600
 <button class="delete" onclick="remove()">Delete</button>
 <button class="cancel" onclick="closeModal()">Cancel</button>
 </div>
+
 </div>
 </div>
 
@@ -211,7 +218,6 @@ let showFav=false;
 
 function render(){
 const q=search.value.toLowerCase();
-const list=document.getElementById("list");
 list.innerHTML="";
 
 let filtered=data.filter(v=>{
@@ -221,15 +227,13 @@ return v.word.toLowerCase().includes(q)||v.meaning.toLowerCase().includes(q);
 
 count.innerText="Total vocabulary: "+data.length;
 
-filtered.forEach(v=>{
-const i=data.indexOf(v);
-
+filtered.forEach((v,i)=>{
 const d=document.createElement("div");
 d.className="card";
 
 d.innerHTML=`
 <div class="word">${v.word}</div>
-<div class="pronounce">${v.pronounce||""}</div>
+<div class="pronounce">${v.ipa||""}</div>
 <div class="meaning">${v.meaning||""}</div>
 
 <div class="icons">
@@ -250,10 +254,29 @@ localStorage.setItem("vocab",JSON.stringify(data));
 function openModal(){
 editIndex=null;
 word.value="";
-pronounce.value="";
+ipa.value="";
 meaning.value="";
 ex1.value="";
+ipa1.value="";
+tr1.value="";
 ex2.value="";
+ipa2.value="";
+tr2.value="";
+modal.style.display="flex";
+}
+
+function edit(i){
+editIndex=i;
+const v=data[i];
+word.value=v.word;
+ipa.value=v.ipa;
+meaning.value=v.meaning;
+ex1.value=v.ex1||"";
+ipa1.value=v.ipa1||"";
+tr1.value=v.tr1||"";
+ex2.value=v.ex2||"";
+ipa2.value=v.ipa2||"";
+tr2.value=v.tr2||"";
 modal.style.display="flex";
 }
 
@@ -262,10 +285,14 @@ function closeModal(){modal.style.display="none"}
 function save(){
 const v={
 word:word.value,
-pronounce:pronounce.value,
+ipa:ipa.value,
 meaning:meaning.value,
 ex1:ex1.value,
+ipa1:ipa1.value,
+tr1:tr1.value,
 ex2:ex2.value,
+ipa2:ipa2.value,
+tr2:tr2.value,
 fav:false
 };
 
@@ -274,17 +301,6 @@ else data[editIndex]={...data[editIndex],...v};
 
 closeModal();
 render();
-}
-
-function edit(i){
-editIndex=i;
-const v=data[i];
-word.value=v.word;
-pronounce.value=v.pronounce;
-meaning.value=v.meaning;
-ex1.value=v.ex1||"";
-ex2.value=v.ex2||"";
-modal.style.display="flex";
 }
 
 function remove(){
@@ -331,9 +347,9 @@ speechSynthesis.speak(u);
 }
 
 function exportCSV(){
-let csv="word,pronounce,meaning,ex1,ex2,fav\n";
+let csv="word,ipa,meaning,ex1,ipa1,tr1,ex2,ipa2,tr2,fav\n";
 data.forEach(v=>{
-csv+=`"${v.word}","${v.pronounce||""}","${v.meaning||""}","${v.ex1||""}","${v.ex2||""}","${v.fav?1:0}"\n`;
+csv+=`"${v.word}","${v.ipa||""}","${v.meaning||""}","${v.ex1||""}","${v.ipa1||""}","${v.tr1||""}","${v.ex2||""}","${v.ipa2||""}","${v.tr2||""}","${v.fav?1:0}"\n`;
 });
 const a=document.createElement("a");
 a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
@@ -355,11 +371,15 @@ const c=line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
 if(!c)return;
 data.push({
 word:c[0].replace(/"/g,""),
-pronounce:c[1].replace(/"/g,""),
+ipa:c[1].replace(/"/g,""),
 meaning:c[2].replace(/"/g,""),
 ex1:c[3].replace(/"/g,""),
-ex2:c[4].replace(/"/g,""),
-fav:c[5]=="1"
+ipa1:c[4].replace(/"/g,""),
+tr1:c[5].replace(/"/g,""),
+ex2:c[6].replace(/"/g,""),
+ipa2:c[7].replace(/"/g,""),
+tr2:c[8].replace(/"/g,""),
+fav:c[9]=="1"
 });
 });
 render();
@@ -386,7 +406,7 @@ pronModal.style.display="none";
 function lookupIPA(){
 const w=pronWord.value.toLowerCase().trim();
 const found=data.find(v=>v.word.toLowerCase()==w);
-pronIPA.innerHTML=found?found.pronounce:"";
+pronIPA.innerHTML=found?found.ipa:"";
 }
 
 function hearPron(){

@@ -3,159 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>My Vocab Ultra</title>
+<title>My Vocab Ultimate</title>
 
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-body{margin:0;background:#f5f7fb}
+body{margin:0;background:#f3f5f9}
 
-header{
-position:sticky;top:0;background:#fff;
-padding:16px;z-index:10;
-box-shadow:0 2px 6px rgba(0,0,0,.08)
-}
+header{position:sticky;top:0;background:#fff;padding:14px;
+box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:10}
 
-h1{margin:0 0 6px;font-size:22px}
-.count{font-size:14px;color:#666}
+h1{margin:0;font-size:22px}
+.count{font-size:13px;color:#666;margin-top:2px}
 
-.controls{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:10px
-}
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+button{border:none;border-radius:10px;padding:10px 12px;font-size:14px}
 
-button{
-border:none;
-padding:10px 14px;
-border-radius:12px;
-font-size:14px;
-cursor:pointer;
-color:#fff
-}
+.import{background:#1e88e5;color:#fff}
+.export{background:#6a5acd;color:#fff}
+.deleteall{background:#e53935;color:#fff}
+.favbtn{background:#f39c12;color:#fff}
+.refresh{background:#27ae60;color:#fff}
+.add{background:#e3f2fd}
 
-.import{background:#1e88e5}
-.export{background:#6a5acd}
-.deleteall{background:#e53935}
-.favorite{background:#f39c12}
-.pron{background:#4fc3f7}
-.refresh{background:#43a047}
-.add{background:#90a4ae}
+.search{margin-top:10px;width:100%;padding:12px;border-radius:12px;
+border:1px solid #ccc;font-size:16px}
 
-.search{
-width:100%;
-margin-top:10px;
-padding:12px;
-border-radius:12px;
-border:1px solid #ccc;
-font-size:16px;
-}
+main{padding:14px}
 
-main{padding:16px}
-
-.card{
-background:#fff;
-border-radius:14px;
-padding:14px;
-margin-bottom:12px;
-position:relative
-}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;position:relative}
 
 .word{font-weight:700;font-size:18px}
-.pronounce{color:#666;font-style:italic;margin-top:2px}
-.meaning{color:#444;margin-top:4px}
+.pron{color:#666;margin-top:2px;word-break:break-word}
+.meaning{margin-top:2px;word-break:break-word}
 
-.icons{
-margin-top:8px;
-display:flex;
-gap:8px;
-font-size:20px
+.icons{margin-top:6px}
+.icons span{font-size:20px;margin-right:8px}
+
+.star{position:absolute;right:12px;top:12px;font-size:22px;cursor:pointer}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.35);
+display:none;align-items:center;justify-content:center;padding:14px;z-index:99}
+
+.modal-content{background:#fff;border-radius:16px;padding:14px;width:100%;
+max-width:420px;max-height:90vh;overflow:auto}
+
+.modal-content input{
+width:100%;margin-bottom:10px;padding:12px 14px;
+border-radius:10px;border:1px solid #ccc;font-size:16px
 }
 
-.star{
-position:absolute;
-right:12px;
-top:12px;
-font-size:22px;
-cursor:pointer;
-color:#bbb
-}
-.star.active{color:#f4c542}
-
-.pencil{
-position:absolute;
-right:40px;
-top:12px;
-font-size:20px;
-cursor:pointer
-}
-
-.modal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.4);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:99
-}
-
-.modal-content{
-background:#fff;
-width:92%;
-max-width:420px;
-padding:16px;
-border-radius:14px
-}
-
-.modal-content input,
 .modal-content textarea{
-width:100%;
-margin-bottom:8px;
-padding:12px;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:16px;
+width:100%;margin-bottom:10px;padding:12px 14px;
+border-radius:10px;border:1px solid #ccc;font-size:16px;
+resize:none;overflow:hidden;
+white-space:pre-wrap;
+word-break:break-word;
 }
 
-.modal-actions{
-display:flex;
-gap:10px;
-margin-top:10px
-}
+.ipa{font-family:Arial,Helvetica,sans-serif}
 
-.save{background:#1e88e5}
-.delete{background:#e53935}
+.modal-actions{display:flex;gap:10px;margin-top:6px}
+.modal-actions button{flex:1}
+
+.save{background:#1e88e5;color:#fff}
+.delete{background:#e53935;color:#fff}
 .cancel{background:#bbb}
-.audio{background:#2ecc71}
-
-.pronIPA{
-margin-top:8px;
-font-style:italic;
-color:#444
-}
-
-.pronResult{
-margin-top:8px;
-font-weight:600
-}
+.audio{background:#2ecc71;color:#fff}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>📘 My Vocab Ultra</h1>
-<div class="count" id="count">Total vocabulary: 0</div>
+<h1>📘 My Vocab Ultimate</h1>
+<div class="count" id="count">Total vocabulary: 0 words</div>
 
 <div class="controls">
 <button class="import" onclick="importCSV()">📥 Import</button>
 <button class="export" onclick="exportCSV()">📤 Export</button>
 <button class="deleteall" onclick="deleteAll()">🧨 Delete All</button>
-
-<button class="favorite" onclick="showFavorites()">⭐ Favorites</button>
-<button class="pron" onclick="openPron()">🎤 Pronunciation</button>
-<button class="refresh" onclick="refreshList()">🔄</button>
+<button class="favbtn" onclick="toggleFavView()">⭐ Favorites</button>
+<button class="refresh" onclick="resetView()">🔄</button>
 <button class="add" onclick="openModal()">＋</button>
 </div>
 
@@ -164,25 +92,24 @@ font-weight:600
 
 <main id="list"></main>
 
-<!-- EDIT -->
 <div class="modal" id="modal">
 <div class="modal-content">
 
 <input id="word" placeholder="Word">
-<input id="ipa" placeholder="IPA">
-<input id="meaning" placeholder="Meaning">
+<input id="pron" class="ipa" placeholder="Pronunciation">
+<textarea id="meaning" rows="2" placeholder="Meaning"></textarea>
 
-<textarea id="ex1" placeholder="Example 1"></textarea>
-<input id="ipa1" placeholder="IPA Example 1">
-<textarea id="tr1" placeholder="Translation 1"></textarea>
+<textarea id="ex1" rows="2" placeholder="Example 1"></textarea>
+<textarea id="ipa1" class="ipa" rows="2" placeholder="IPA Example 1"></textarea>
+<textarea id="tr1" rows="2" placeholder="Translation 1"></textarea>
 
-<textarea id="ex2" placeholder="Example 2"></textarea>
-<input id="ipa2" placeholder="IPA Example 2">
-<textarea id="tr2" placeholder="Translation 2"></textarea>
+<textarea id="ex2" rows="2" placeholder="Example 2"></textarea>
+<textarea id="ipa2" class="ipa" rows="2" placeholder="IPA Example 2"></textarea>
+<textarea id="tr2" rows="2" placeholder="Translation 2"></textarea>
 
 <div class="modal-actions">
-<button class="audio" onclick="speak(ex1.value)">🔊 Ex1</button>
-<button class="audio" onclick="speak(ex2.value)">🔊 Ex2</button>
+<button class="audio" onclick="speakExample(1)">🔊 Example1</button>
+<button class="audio" onclick="speakExample(2)">🔊 Ex2</button>
 </div>
 
 <div class="modal-actions">
@@ -194,90 +121,53 @@ font-weight:600
 </div>
 </div>
 
-<!-- PRON -->
-<div class="modal" id="pronModal">
-<div class="modal-content">
-<input id="pronWord" placeholder="Type word" oninput="lookupIPA()">
-
-<div class="pronIPA" id="pronIPA"></div>
-
-<div class="modal-actions">
-<button class="audio" onclick="hearPron()">Hear</button>
-<button class="save" onclick="testPron()">Test</button>
-<button class="cancel" onclick="closePron()">Close</button>
-</div>
-
-<div class="pronResult" id="pronResult"></div>
-</div>
-</div>
-
 <script>
-let data=JSON.parse(localStorage.getItem("vocab")||"[]");
-let editIndex=null;
-let showFav=false;
+let data=JSON.parse(localStorage.getItem("vocab")||"[]")
+let editIndex=null
+let favOnly=false
 
 function render(){
-const q=search.value.toLowerCase();
-list.innerHTML="";
+const list=document.getElementById("list")
+const q=document.getElementById("search").value.toLowerCase()
+list.innerHTML=""
 
-let filtered=data.filter(v=>{
-if(showFav && !v.fav) return false;
-return v.word.toLowerCase().includes(q)||v.meaning.toLowerCase().includes(q);
-});
+let arr=data.filter(v=>{
+if(favOnly && !v.fav) return false
+return v.word.toLowerCase().includes(q) ||
+(v.meaning||"").toLowerCase().includes(q)
+})
 
-count.innerText="Total vocabulary: "+data.length;
+document.getElementById("count").innerText=`Total vocabulary: ${data.length} words`
 
-filtered.forEach((v,i)=>{
-const d=document.createElement("div");
-d.className="card";
-
+arr.forEach(v=>{
+const i=data.indexOf(v)
+const d=document.createElement("div")
+d.className="card"
 d.innerHTML=`
 <div class="word">${v.word}</div>
-<div class="pronounce">${v.ipa||""}</div>
+<div class="pron">${v.pron||""}</div>
 <div class="meaning">${v.meaning||""}</div>
 
 <div class="icons">
 <span onclick="speak('${v.word}')">🔊</span>
 <span onclick="speakSlow('${v.word}')">🐢</span>
+<span onclick="edit(${i})">✏️</span>
 </div>
 
-<div class="pencil" onclick="edit(${i})">✏️</div>
-<div class="star ${v.fav?'active':''}" onclick="toggleFav(${i})">★</div>
-`;
+<div class="star" onclick="toggleFav(${i})">${v.fav?"⭐":"☆"}</div>
+`
+list.appendChild(d)
+})
 
-list.appendChild(d);
-});
-
-localStorage.setItem("vocab",JSON.stringify(data));
+localStorage.setItem("vocab",JSON.stringify(data))
 }
 
 function openModal(){
-editIndex=null;
-word.value="";
-ipa.value="";
-meaning.value="";
-ex1.value="";
-ipa1.value="";
-tr1.value="";
-ex2.value="";
-ipa2.value="";
-tr2.value="";
-modal.style.display="flex";
-}
-
-function edit(i){
-editIndex=i;
-const v=data[i];
-word.value=v.word;
-ipa.value=v.ipa;
-meaning.value=v.meaning;
-ex1.value=v.ex1||"";
-ipa1.value=v.ipa1||"";
-tr1.value=v.tr1||"";
-ex2.value=v.ex2||"";
-ipa2.value=v.ipa2||"";
-tr2.value=v.tr2||"";
-modal.style.display="flex";
+editIndex=null
+word.value=pron.value=meaning.value=""
+ex1.value=ipa1.value=tr1.value=""
+ex2.value=ipa2.value=tr2.value=""
+modal.style.display="flex"
 }
 
 function closeModal(){modal.style.display="none"}
@@ -285,7 +175,7 @@ function closeModal(){modal.style.display="none"}
 function save(){
 const v={
 word:word.value,
-ipa:ipa.value,
+pron:pron.value,
 meaning:meaning.value,
 ex1:ex1.value,
 ipa1:ipa1.value,
@@ -293,85 +183,70 @@ tr1:tr1.value,
 ex2:ex2.value,
 ipa2:ipa2.value,
 tr2:tr2.value,
-fav:false
-};
+fav:editIndex!==null?data[editIndex].fav:false
+}
+if(editIndex===null)data.push(v)
+else data[editIndex]=v
+closeModal();render()
+}
 
-if(editIndex===null)data.push(v);
-else data[editIndex]={...data[editIndex],...v};
-
-closeModal();
-render();
+function edit(i){
+editIndex=i
+const v=data[i]
+word.value=v.word||""
+pron.value=v.pron||""
+meaning.value=v.meaning||""
+ex1.value=v.ex1||""
+ipa1.value=v.ipa1||""
+tr1.value=v.tr1||""
+ex2.value=v.ex2||""
+ipa2.value=v.ipa2||""
+tr2.value=v.tr2||""
+modal.style.display="flex"
 }
 
 function remove(){
-if(editIndex!==null){
-data.splice(editIndex,1);
-closeModal();
-render();
-}
+if(editIndex!==null){data.splice(editIndex,1);closeModal();render()}
 }
 
 function deleteAll(){
-if(confirm("Delete all vocab?")){
-data=[];
-render();
-}
+if(confirm("Delete all vocabulary?")){data=[];render()}
 }
 
-function toggleFav(i){
-data[i].fav=!data[i].fav;
-render();
-}
+function toggleFav(i){data[i].fav=!data[i].fav;render()}
+function toggleFavView(){favOnly=!favOnly;render()}
+function resetView(){favOnly=false;search.value="";render()}
 
-function showFavorites(){
-showFav=!showFav;
-render();
-}
-
-function refreshList(){
-search.value="";
-showFav=false;
-render();
-}
-
-function speak(t){
-if(!t)return;
-speechSynthesis.speak(new SpeechSynthesisUtterance(t));
-}
-
-function speakSlow(t){
-if(!t)return;
-let u=new SpeechSynthesisUtterance(t);
-u.rate=0.6;
-speechSynthesis.speak(u);
-}
+function speak(t){speechSynthesis.speak(new SpeechSynthesisUtterance(t))}
+function speakSlow(t){let u=new SpeechSynthesisUtterance(t);u.rate=0.6;speechSynthesis.speak(u)}
+function speakExample(n){if(n===1&&ex1.value)speak(ex1.value);if(n===2&&ex2.value)speak(ex2.value)}
 
 function exportCSV(){
-let csv="word,ipa,meaning,ex1,ipa1,tr1,ex2,ipa2,tr2,fav\n";
+let csv="word,pronunciation,meaning,example1,ipa1,translation1,example2,ipa2,translation2,fav\n"
 data.forEach(v=>{
-csv+=`"${v.word}","${v.ipa||""}","${v.meaning||""}","${v.ex1||""}","${v.ipa1||""}","${v.tr1||""}","${v.ex2||""}","${v.ipa2||""}","${v.tr2||""}","${v.fav?1:0}"\n`;
-});
-const a=document.createElement("a");
-a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-a.download="vocab.csv";
-a.click();
+csv+=`"${v.word}","${v.pron}","${v.meaning}","${v.ex1}","${v.ipa1}","${v.tr1}","${v.ex2}","${v.ipa2}","${v.tr2}","${v.fav?1:0}"\n`
+})
+const a=document.createElement("a")
+a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}))
+a.download="my-vocab-Ultimate.csv"
+a.click()
 }
 
 function importCSV(){
-const i=document.createElement("input");
-i.type="file";
-i.accept=".csv";
+const i=document.createElement("input")
+i.type="file";i.accept=".csv"
 i.onchange=e=>{
-const r=new FileReader();
+const r=new FileReader()
 r.onload=()=>{
-const lines=r.result.split(/\r?\n/).filter(l=>l.trim());
-data=[];
-lines.slice(1).forEach(line=>{
-const c=line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-if(!c)return;
+const lines=r.result.split(/\r?\n/).slice(1)
+data=[]
+lines.forEach(l=>{
+if(!l.trim())return
+const c=l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
+if(!c)return
 data.push({
 word:c[0].replace(/"/g,""),
-ipa:c[1].replace(/"/g,""),
+pron:c[1].replace(/"/g,""),
 meaning:c[2].replace(/"/g,""),
 ex1:c[3].replace(/"/g,""),
 ipa1:c[4].replace(/"/g,""),
@@ -380,59 +255,17 @@ ex2:c[6].replace(/"/g,""),
 ipa2:c[7].replace(/"/g,""),
 tr2:c[8].replace(/"/g,""),
 fav:c[9]=="1"
-});
-});
-render();
-alert("Import success");
-};
-r.readAsText(e.target.files[0]);
-};
-i.click();
+})
+})
+render()
+alert("Import success ✅")
+}
+r.readAsText(e.target.files[0])
+}
+i.click()
 }
 
-/* pronunciation */
-
-function openPron(){
-pronWord.value="";
-pronIPA.innerHTML="";
-pronResult.innerHTML="";
-pronModal.style.display="flex";
-}
-
-function closePron(){
-pronModal.style.display="none";
-}
-
-function lookupIPA(){
-const w=pronWord.value.toLowerCase().trim();
-const found=data.find(v=>v.word.toLowerCase()==w);
-pronIPA.innerHTML=found?found.ipa:"";
-}
-
-function hearPron(){
-speak(pronWord.value);
-}
-
-function testPron(){
-let target=pronWord.value.toLowerCase().trim();
-if(!target)return;
-
-let rec=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
-rec.lang="en-US";
-rec.start();
-
-rec.onresult=e=>{
-let said=e.results[0][0].transcript.toLowerCase();
-if(said==target){
-pronResult.innerHTML="✅ Correct";
-}else{
-pronResult.innerHTML="❌ "+said;
-}
-};
-}
-
-render();
+render()
 </script>
-
 </body>
 </html>
